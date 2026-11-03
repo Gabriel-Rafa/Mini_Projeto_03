@@ -264,35 +264,3 @@ Contando somente células de código, não os números de execução:
 | 8 | Demonstração OWL-RL |
 | 9 | Consulta editável por limite de páginas |
 
-## 12. Correspondência com o roteiro
-
-| Exigência | Implementação |
-|---|---|
-| 8+ classes e dois níveis abaixo da raiz | 14 classes; até três níveis abaixo de Entidade |
-| 10+ propriedades; pelo menos 5 de objeto e 5 de dados | 19: dez de objeto e nove de dados |
-| Domain/range quando couber | Declarados em todas as propriedades do domínio |
-| 25+ instâncias | 33 indivíduos nomeados, antes de updates/inferência |
-| 50+ triplas no Turtle | 314 triplas explícitas |
-| 5+ construções OWL justificadas | Cinco tipos, com exemplos e limites semânticos |
-| 5+ consultas g.triples() variadas e comentadas | Seis padrões, com resultados esperados |
-| 8+ consultas SPARQL, incluindo formas obrigatórias | Oito leituras e três updates; onze ao todo |
-| Resultados com número e propósito | Identificadores T1–T6, S1–S11 e I1–I4 |
-| Base, aplicação e README no GitHub | Arquivos preparados; publicação deve ser realizada pelo autor |
-
-## 13. Entrega
-
-1. Crie um repositório, por exemplo `mini-projeto-03-biblioteca`.
-2. Extraia o pacote e envie os arquivos à raiz, incluindo `biblioteca.ttl`, `consultas.py`, `requirements.txt` e este README. Não envie somente o ZIP.
-3. Confira a execução e o acesso ao repositório; inclua o notebook se desejar facilitar a demonstração.
-4. Entregue o link real do GitHub conforme a orientação da disciplina.
-
-O roteiro fornecido não informa uma data limite nem exige vídeo. O roteiro de apresentação é material adicional de apoio. Nenhum repositório foi publicado nem link enviado automaticamente.
-
-## 14. Referências
-
-- `Mini_Projeto_03_-_Roteiro.pdf`, fornecido na disciplina: especificação e rubrica.
-- [RDFLib — Graph, triples e update](https://rdflib.readthedocs.io/en/stable/apidocs/rdflib.graph/).
-- [RDFLib — consultas SPARQL](https://rdflib.readthedocs.io/en/7.1.0/intro_to_sparql.html).
-- [OWL-RL — documentação](https://owl-rl.readthedocs.io/en/latest/).
-
-Consultadas em 03/11/2026. A base de exemplo foi elaborada para esta atividade, sem alegação de representar uma escola real.
