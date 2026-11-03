@@ -1,0 +1,159 @@
+BASE: 14 classes; 10 propriedades de objeto; 9 de dados; 33 indivíduos; 314 triplas.
+
+[T1] Dados do livro01 (sujeito fixo). Esperado: 8 triplas.
+ex:livro01 | ex:anoPublicacao | "2020"^^xsd:integer
+ex:livro01 | ex:codigoInventario | "L001"^^xsd:string
+ex:livro01 | ex:escritoPor | ex:autor1
+ex:livro01 | ex:guardadoEm | ex:estanteRomance
+ex:livro01 | ex:paginas | "210"^^xsd:integer
+ex:livro01 | ex:titulo | "O Caminho da Serra"^^xsd:string
+ex:livro01 | rdf:type | ex:Romance
+ex:livro01 | rdf:type | owl:NamedIndividual
+Total: 8 triplas
+
+[T2] Relações de autoria (predicado fixo). Esperado: 10 triplas.
+ex:livro01 | ex:escritoPor | ex:autor1
+ex:livro02 | ex:escritoPor | ex:autor2
+ex:livro03 | ex:escritoPor | ex:autor1
+ex:livro04 | ex:escritoPor | ex:autor3
+ex:livro05 | ex:escritoPor | ex:autor4
+ex:livro06 | ex:escritoPor | ex:autor4
+ex:livro07 | ex:escritoPor | ex:autor4
+ex:livro08 | ex:escritoPor | ex:autor3
+ex:livro09 | ex:escritoPor | ex:autor2
+ex:livro10 | ex:escritoPor | ex:autor1
+Total: 10 triplas
+
+[T3] Quem se relaciona com Ana? (objeto fixo). Esperado: 1 triplas.
+ex:emprestimo01 | ex:emprestadoPara | ex:ana
+Total: 1 triplas
+
+[T4] Alunos declarados. Esperado: 6 triplas.
+ex:ana | rdf:type | ex:Aluno
+ex:bruno | rdf:type | ex:Aluno
+ex:carla | rdf:type | ex:Aluno
+ex:diego | rdf:type | ex:Aluno
+ex:elisa | rdf:type | ex:Aluno
+ex:felipe | rdf:type | ex:Aluno
+Total: 6 triplas
+
+[T5] Autor do livro01. Esperado: 1 triplas.
+ex:livro01 | ex:escritoPor | ex:autor1
+Total: 1 triplas
+
+[T6] Livros da estante infantil. Esperado: 3 triplas.
+ex:livro08 | ex:guardadoEm | ex:estanteInfantil
+ex:livro09 | ex:guardadoEm | ex:estanteInfantil
+ex:livro10 | ex:guardadoEm | ex:estanteInfantil
+Total: 3 triplas
+
+[S1] Catálogo com autores, ordenado por título
+titulo | autor
+"A Casa do Lago"^^xsd:string | "Helena Martins Reis"^^xsd:string
+"A Estrela Curiosa"^^xsd:string | "Helena Martins Reis"^^xsd:string
+"A Viagem da Semente"^^xsd:string | "Clara Nunes de Souza"^^xsd:string
+"Cartas do Amanhã"^^xsd:string | "Miguel Torres Lima"^^xsd:string
+"Ciência na Escola"^^xsd:string | "Paulo Azevedo Dias"^^xsd:string
+"História em Mapas"^^xsd:string | "Paulo Azevedo Dias"^^xsd:string
+"Matemática em Passos"^^xsd:string | "Paulo Azevedo Dias"^^xsd:string
+"O Caminho da Serra"^^xsd:string | "Clara Nunes de Souza"^^xsd:string
+"O Jardim das Cores"^^xsd:string | "Miguel Torres Lima"^^xsd:string
+"O Mistério da Ponte"^^xsd:string | "Clara Nunes de Souza"^^xsd:string
+Total: 10 linhas
+
+[S2] Leituras curtas: até 120 páginas
+titulo | paginas
+"A Estrela Curiosa"^^xsd:string | "48"^^xsd:integer
+"O Jardim das Cores"^^xsd:string | "64"^^xsd:integer
+"A Viagem da Semente"^^xsd:string | "80"^^xsd:integer
+"Matemática em Passos"^^xsd:string | "120"^^xsd:integer
+Total: 4 linhas
+
+[S3] Quantidade de exemplares por autor
+autor | quantidade
+"Clara Nunes de Souza"^^xsd:string | "3"^^xsd:integer
+"Paulo Azevedo Dias"^^xsd:string | "3"^^xsd:integer
+"Helena Martins Reis"^^xsd:string | "2"^^xsd:integer
+"Miguel Torres Lima"^^xsd:string | "2"^^xsd:integer
+Total: 4 linhas
+
+[S4] Ana está com o livro01 em um empréstimo ativo?
+Resposta: True
+
+[S5] Construir um grafo pessoa -> estaCom -> livro
+<https://example.org/biblioteca#ana> | <https://example.org/biblioteca#estaCom> | <https://example.org/biblioteca#livro01>
+<https://example.org/biblioteca#bruno> | <https://example.org/biblioteca#estaCom> | <https://example.org/biblioteca#livro05>
+<https://example.org/biblioteca#carla> | <https://example.org/biblioteca#estaCom> | <https://example.org/biblioteca#livro08>
+<https://example.org/biblioteca#diego> | <https://example.org/biblioteca#estaCom> | <https://example.org/biblioteca#livro03>
+<https://example.org/biblioteca#profLia> | <https://example.org/biblioteca#estaCom> | <https://example.org/biblioteca#livro07>
+Total: 5 triplas
+
+[S6] Empréstimos vencidos na data fixa 03/11/2026
+emp | pessoa | titulo | prazo
+ex:emprestimo04 | "Lia Santos"^^xsd:string | "História em Mapas"^^xsd:string | "2026-10-28"^^xsd:date
+ex:emprestimo02 | "Bruno Costa"^^xsd:string | "Matemática em Passos"^^xsd:string | "2026-10-30"^^xsd:date
+Total: 2 linhas
+
+[S7] Livros cuja estante habitual fica na biblioteca central
+titulo
+"A Estrela Curiosa"^^xsd:string
+"A Viagem da Semente"^^xsd:string
+"Cartas do Amanhã"^^xsd:string
+"Ciência na Escola"^^xsd:string
+"Matemática em Passos"^^xsd:string
+"O Caminho da Serra"^^xsd:string
+"O Jardim das Cores"^^xsd:string
+"O Mistério da Ponte"^^xsd:string
+Total: 8 linhas
+
+[S8] Exemplares sem empréstimo ativo registrado
+livro | titulo
+ex:livro02 | "Cartas do Amanhã"^^xsd:string
+ex:livro04 | "A Casa do Lago"^^xsd:string
+ex:livro06 | "Ciência na Escola"^^xsd:string
+ex:livro09 | "O Jardim das Cores"^^xsd:string
+ex:livro10 | "A Viagem da Semente"^^xsd:string
+Total: 5 linhas
+
+[S9] INSERT DATA: registrar empréstimo temporário do livro10 para Elisa.
+ANTES: triplas do emprestimo06 = 0
+ex:emprestimo06 | ex:ativo | "true"^^xsd:boolean
+ex:emprestimo06 | ex:dataEmprestimo | "2026-11-03"^^xsd:date
+ex:emprestimo06 | ex:dataPrevista | "2026-11-17"^^xsd:date
+ex:emprestimo06 | ex:emprestadoPara | ex:elisa
+ex:emprestimo06 | ex:itemEmprestado | ex:livro10
+ex:emprestimo06 | ex:registradoEm | ex:central
+ex:emprestimo06 | rdf:type | ex:Emprestimo
+Total: 7 triplas
+DEPOIS: registro existe? True | Triplas adicionadas: 7
+
+[S10] DELETE WHERE: apagar o registro temporário criado em S9.
+ANTES: triplas do emprestimo06 = 7
+DEPOIS: triplas do emprestimo06 = 0
+
+[S11] DELETE/INSERT: renovar o prazo do empréstimo de Ana.
+ANTES: 2026-11-17
+DEPOIS: 2026-11-24
+Base original preservada; os updates ocorreram apenas em memória.
+
+[I1: hierarquia de classes] ANTES: False | DEPOIS: True
+ex:livro01 | rdf:type | ex:Livro
+Total: 1 triplas
+
+[I2: inverseOf] ANTES: False | DEPOIS: True
+ex:autor1 | ex:autorDe | ex:livro01
+Total: 1 triplas
+
+[I3: subpropriedades + transitividade] ANTES: False | DEPOIS: True
+ex:livro01 | ex:localizadoEm | ex:central
+Total: 1 triplas
+
+[I4: simetria da parceria] ANTES: False | DEPOIS: True
+ex:anexo | ex:parceiraDe | ex:central
+Total: 1 triplas
+
+Funcionalidade: cada registro tem um único item; cada exemplar tem um código.
+Disjunção: não há Livro simultaneamente Pessoa ou Local nesta base.
+OWL não é um formulário validador: domain/range inferem tipos; funcionalidade não é chave única.
+
+TODAS AS CONSULTAS E VERIFICAÇÕES FORAM CONCLUÍDAS.

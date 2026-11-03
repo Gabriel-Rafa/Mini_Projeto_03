@@ -1,0 +1,136 @@
+@prefix ex: <https://example.org/biblioteca#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Dados inteiramente fictícios, destinados à demonstração acadêmica.
+# Cada Livro representa um exemplar físico com código de inventário.
+# guardadoEm indica a estante habitual, mesmo quando o livro está emprestado.
+ex:OntologiaBiblioteca a owl:Ontology ;
+    rdfs:label "Biblioteca escolar didática"@pt ;
+    rdfs:comment "Mini-Projeto 03. Gabriel Rafá Martins Freire, 20230145310. Cenário fictício; datas de referência fixas."@pt .
+
+# 1. CLASSES: taxonomia com vários níveis abaixo de Entidade.
+ex:Entidade a owl:Class ; rdfs:label "Entidade"@pt .
+ex:Pessoa a owl:Class ; rdfs:label "Pessoa"@pt ; rdfs:subClassOf ex:Entidade .
+ex:Aluno a owl:Class ; rdfs:label "Aluno"@pt ; rdfs:subClassOf ex:Pessoa .
+ex:Professor a owl:Class ; rdfs:label "Professor"@pt ; rdfs:subClassOf ex:Pessoa .
+ex:Autor a owl:Class ; rdfs:label "Autor"@pt ; rdfs:subClassOf ex:Pessoa .
+ex:ItemAcervo a owl:Class ; rdfs:label "Item do acervo"@pt ; rdfs:subClassOf ex:Entidade .
+ex:Livro a owl:Class ; rdfs:label "Livro"@pt ; rdfs:subClassOf ex:ItemAcervo .
+ex:Romance a owl:Class ; rdfs:label "Romance"@pt ; rdfs:subClassOf ex:Livro .
+ex:LivroDidatico a owl:Class ; rdfs:label "Livro didático"@pt ; rdfs:subClassOf ex:Livro .
+ex:LivroInfantil a owl:Class ; rdfs:label "Livro infantil"@pt ; rdfs:subClassOf ex:Livro .
+ex:Local a owl:Class ; rdfs:label "Local"@pt ; rdfs:subClassOf ex:Entidade .
+ex:Biblioteca a owl:Class ; rdfs:label "Biblioteca"@pt ; rdfs:subClassOf ex:Local .
+ex:Estante a owl:Class ; rdfs:label "Estante"@pt ; rdfs:subClassOf ex:Local .
+ex:Emprestimo a owl:Class ; rdfs:label "Empréstimo"@pt ; rdfs:subClassOf ex:Entidade .
+
+# Disjunção: um livro não pode ser uma pessoa ou um local neste domínio.
+ex:Livro owl:disjointWith ex:Pessoa, ex:Local .
+
+# 2. PROPRIEDADES DE OBJETO: ligam dois recursos.
+ex:escritoPor a owl:ObjectProperty ; rdfs:domain ex:Livro ; rdfs:range ex:Autor ; rdfs:label "Autor do exemplar"@pt  .
+ex:autorDe a owl:ObjectProperty ; rdfs:domain ex:Autor ; rdfs:range ex:Livro ; rdfs:label "Livros do autor"@pt ; owl:inverseOf ex:escritoPor .
+ex:localizadoEm a owl:ObjectProperty, owl:TransitiveProperty ; rdfs:domain ex:Entidade ; rdfs:range ex:Local ; rdfs:label "Localização direta ou indireta"@pt  .
+ex:guardadoEm a owl:ObjectProperty ; rdfs:domain ex:Livro ; rdfs:range ex:Estante ; rdfs:label "Estante de guarda habitual"@pt ; rdfs:subPropertyOf ex:localizadoEm .
+ex:pertenceBiblioteca a owl:ObjectProperty ; rdfs:domain ex:Estante ; rdfs:range ex:Biblioteca ; rdfs:label "Biblioteca da estante"@pt ; rdfs:subPropertyOf ex:localizadoEm .
+ex:emprestadoPara a owl:ObjectProperty ; rdfs:domain ex:Emprestimo ; rdfs:range ex:Pessoa ; rdfs:label "Pessoa responsável pelo empréstimo"@pt  .
+ex:itemEmprestado a owl:ObjectProperty, owl:FunctionalProperty ; rdfs:domain ex:Emprestimo ; rdfs:range ex:Livro ; rdfs:label "Único exemplar de cada registro"@pt  .
+ex:registradoEm a owl:ObjectProperty ; rdfs:domain ex:Emprestimo ; rdfs:range ex:Biblioteca ; rdfs:label "Biblioteca que registra o empréstimo"@pt  .
+ex:parceiraDe a owl:ObjectProperty, owl:SymmetricProperty ; rdfs:domain ex:Biblioteca ; rdfs:range ex:Biblioteca ; rdfs:label "Parceria recíproca entre bibliotecas"@pt  .
+ex:estaCom a owl:ObjectProperty ; rdfs:domain ex:Pessoa ; rdfs:range ex:Livro ; rdfs:label "Relação derivada para consulta de empréstimos ativos"@pt  .
+
+# 3. PROPRIEDADES DE DADOS: ligam um recurso a um literal tipado.
+ex:nome a owl:DatatypeProperty ; rdfs:domain ex:Entidade ; rdfs:range xsd:string ; rdfs:label "Nome de pessoa ou local"@pt .
+ex:titulo a owl:DatatypeProperty ; rdfs:domain ex:Livro ; rdfs:range xsd:string ; rdfs:label "Título do exemplar"@pt .
+ex:anoPublicacao a owl:DatatypeProperty ; rdfs:domain ex:Livro ; rdfs:range xsd:integer ; rdfs:label "Ano da publicação"@pt .
+ex:paginas a owl:DatatypeProperty ; rdfs:domain ex:Livro ; rdfs:range xsd:integer ; rdfs:label "Número de páginas"@pt .
+ex:codigoInventario a owl:DatatypeProperty, owl:FunctionalProperty ; rdfs:domain ex:Livro ; rdfs:range xsd:string ; rdfs:label "Código único atribuído a cada exemplar"@pt .
+ex:matricula a owl:DatatypeProperty ; rdfs:domain ex:Aluno ; rdfs:range xsd:string ; rdfs:label "Matrícula fictícia do aluno"@pt .
+ex:dataEmprestimo a owl:DatatypeProperty ; rdfs:domain ex:Emprestimo ; rdfs:range xsd:date ; rdfs:label "Data de retirada"@pt .
+ex:dataPrevista a owl:DatatypeProperty ; rdfs:domain ex:Emprestimo ; rdfs:range xsd:date ; rdfs:label "Data prevista de devolução"@pt .
+ex:ativo a owl:DatatypeProperty ; rdfs:domain ex:Emprestimo ; rdfs:range xsd:boolean ; rdfs:label "Registro ainda não encerrado"@pt .
+
+# 4. PESSOAS: 6 alunos, 2 professores e 4 autores fictícios.
+ex:ana a owl:NamedIndividual, ex:Aluno ; ex:nome "Ana Lima"^^xsd:string ; ex:matricula "A001"^^xsd:string .
+ex:bruno a owl:NamedIndividual, ex:Aluno ; ex:nome "Bruno Costa"^^xsd:string ; ex:matricula "A002"^^xsd:string .
+ex:carla a owl:NamedIndividual, ex:Aluno ; ex:nome "Carla Alves"^^xsd:string ; ex:matricula "A003"^^xsd:string .
+ex:diego a owl:NamedIndividual, ex:Aluno ; ex:nome "Diego Rocha"^^xsd:string ; ex:matricula "A004"^^xsd:string .
+ex:elisa a owl:NamedIndividual, ex:Aluno ; ex:nome "Elisa Melo"^^xsd:string ; ex:matricula "A005"^^xsd:string .
+ex:felipe a owl:NamedIndividual, ex:Aluno ; ex:nome "Felipe Silva"^^xsd:string ; ex:matricula "A006"^^xsd:string .
+ex:profLia a owl:NamedIndividual, ex:Professor ; ex:nome "Lia Santos"^^xsd:string .
+ex:profRui a owl:NamedIndividual, ex:Professor ; ex:nome "Rui Gomes"^^xsd:string .
+ex:autor1 a owl:NamedIndividual, ex:Autor ; ex:nome "Clara Nunes de Souza"^^xsd:string .
+ex:autor2 a owl:NamedIndividual, ex:Autor ; ex:nome "Miguel Torres Lima"^^xsd:string .
+ex:autor3 a owl:NamedIndividual, ex:Autor ; ex:nome "Helena Martins Reis"^^xsd:string .
+ex:autor4 a owl:NamedIndividual, ex:Autor ; ex:nome "Paulo Azevedo Dias"^^xsd:string .
+
+# 5. LOCAIS: 2 bibliotecas e 4 estantes.
+ex:central a owl:NamedIndividual, ex:Biblioteca ; ex:nome "Biblioteca Central da Escola"^^xsd:string .
+ex:anexo a owl:NamedIndividual, ex:Biblioteca ; ex:nome "Biblioteca do Anexo"^^xsd:string .
+ex:central ex:parceiraDe ex:anexo .
+ex:estanteRomance a owl:NamedIndividual, ex:Estante ; ex:nome "Estante de romances"^^xsd:string ; ex:pertenceBiblioteca ex:central .
+ex:estanteDidatica a owl:NamedIndividual, ex:Estante ; ex:nome "Estante de livros didáticos"^^xsd:string ; ex:pertenceBiblioteca ex:central .
+ex:estanteInfantil a owl:NamedIndividual, ex:Estante ; ex:nome "Estante infantil"^^xsd:string ; ex:pertenceBiblioteca ex:central .
+ex:estanteAnexo a owl:NamedIndividual, ex:Estante ; ex:nome "Estante do anexo"^^xsd:string ; ex:pertenceBiblioteca ex:anexo .
+
+# 6. LIVROS: 10 exemplares fictícios, sem ISBNs ou obras reais atribuídas.
+ex:livro01 a owl:NamedIndividual, ex:Romance ;
+    ex:titulo "O Caminho da Serra"^^xsd:string ; ex:anoPublicacao "2020"^^xsd:integer ;
+    ex:paginas "210"^^xsd:integer ; ex:codigoInventario "L001"^^xsd:string ;
+    ex:escritoPor ex:autor1 ; ex:guardadoEm ex:estanteRomance .
+ex:livro02 a owl:NamedIndividual, ex:Romance ;
+    ex:titulo "Cartas do Amanhã"^^xsd:string ; ex:anoPublicacao "2021"^^xsd:integer ;
+    ex:paginas "180"^^xsd:integer ; ex:codigoInventario "L002"^^xsd:string ;
+    ex:escritoPor ex:autor2 ; ex:guardadoEm ex:estanteRomance .
+ex:livro03 a owl:NamedIndividual, ex:Romance ;
+    ex:titulo "O Mistério da Ponte"^^xsd:string ; ex:anoPublicacao "2022"^^xsd:integer ;
+    ex:paginas "240"^^xsd:integer ; ex:codigoInventario "L003"^^xsd:string ;
+    ex:escritoPor ex:autor1 ; ex:guardadoEm ex:estanteRomance .
+ex:livro04 a owl:NamedIndividual, ex:Romance ;
+    ex:titulo "A Casa do Lago"^^xsd:string ; ex:anoPublicacao "2019"^^xsd:integer ;
+    ex:paginas "160"^^xsd:integer ; ex:codigoInventario "L004"^^xsd:string ;
+    ex:escritoPor ex:autor3 ; ex:guardadoEm ex:estanteAnexo .
+ex:livro05 a owl:NamedIndividual, ex:LivroDidatico ;
+    ex:titulo "Matemática em Passos"^^xsd:string ; ex:anoPublicacao "2023"^^xsd:integer ;
+    ex:paginas "120"^^xsd:integer ; ex:codigoInventario "L005"^^xsd:string ;
+    ex:escritoPor ex:autor4 ; ex:guardadoEm ex:estanteDidatica .
+ex:livro06 a owl:NamedIndividual, ex:LivroDidatico ;
+    ex:titulo "Ciência na Escola"^^xsd:string ; ex:anoPublicacao "2024"^^xsd:integer ;
+    ex:paginas "150"^^xsd:integer ; ex:codigoInventario "L006"^^xsd:string ;
+    ex:escritoPor ex:autor4 ; ex:guardadoEm ex:estanteDidatica .
+ex:livro07 a owl:NamedIndividual, ex:LivroDidatico ;
+    ex:titulo "História em Mapas"^^xsd:string ; ex:anoPublicacao "2022"^^xsd:integer ;
+    ex:paginas "200"^^xsd:integer ; ex:codigoInventario "L007"^^xsd:string ;
+    ex:escritoPor ex:autor4 ; ex:guardadoEm ex:estanteAnexo .
+ex:livro08 a owl:NamedIndividual, ex:LivroInfantil ;
+    ex:titulo "A Estrela Curiosa"^^xsd:string ; ex:anoPublicacao "2021"^^xsd:integer ;
+    ex:paginas "48"^^xsd:integer ; ex:codigoInventario "L008"^^xsd:string ;
+    ex:escritoPor ex:autor3 ; ex:guardadoEm ex:estanteInfantil .
+ex:livro09 a owl:NamedIndividual, ex:LivroInfantil ;
+    ex:titulo "O Jardim das Cores"^^xsd:string ; ex:anoPublicacao "2023"^^xsd:integer ;
+    ex:paginas "64"^^xsd:integer ; ex:codigoInventario "L009"^^xsd:string ;
+    ex:escritoPor ex:autor2 ; ex:guardadoEm ex:estanteInfantil .
+ex:livro10 a owl:NamedIndividual, ex:LivroInfantil ;
+    ex:titulo "A Viagem da Semente"^^xsd:string ; ex:anoPublicacao "2024"^^xsd:integer ;
+    ex:paginas "80"^^xsd:integer ; ex:codigoInventario "L010"^^xsd:string ;
+    ex:escritoPor ex:autor1 ; ex:guardadoEm ex:estanteInfantil .
+
+# 7. EMPRÉSTIMOS: um registro por exemplar; todos ativos no cenário inicial.
+ex:emprestimo01 a owl:NamedIndividual, ex:Emprestimo ;
+    ex:emprestadoPara ex:ana ; ex:itemEmprestado ex:livro01 ; ex:registradoEm ex:central ;
+    ex:dataEmprestimo "2026-11-03"^^xsd:date ; ex:dataPrevista "2026-11-17"^^xsd:date ; ex:ativo "true"^^xsd:boolean .
+ex:emprestimo02 a owl:NamedIndividual, ex:Emprestimo ;
+    ex:emprestadoPara ex:bruno ; ex:itemEmprestado ex:livro05 ; ex:registradoEm ex:central ;
+    ex:dataEmprestimo "2026-10-16"^^xsd:date ; ex:dataPrevista "2026-10-30"^^xsd:date ; ex:ativo "true"^^xsd:boolean .
+ex:emprestimo03 a owl:NamedIndividual, ex:Emprestimo ;
+    ex:emprestadoPara ex:carla ; ex:itemEmprestado ex:livro08 ; ex:registradoEm ex:central ;
+    ex:dataEmprestimo "2026-10-21"^^xsd:date ; ex:dataPrevista "2026-11-04"^^xsd:date ; ex:ativo "true"^^xsd:boolean .
+ex:emprestimo04 a owl:NamedIndividual, ex:Emprestimo ;
+    ex:emprestadoPara ex:profLia ; ex:itemEmprestado ex:livro07 ; ex:registradoEm ex:anexo ;
+    ex:dataEmprestimo "2026-10-14"^^xsd:date ; ex:dataPrevista "2026-10-28"^^xsd:date ; ex:ativo "true"^^xsd:boolean .
+ex:emprestimo05 a owl:NamedIndividual, ex:Emprestimo ;
+    ex:emprestadoPara ex:diego ; ex:itemEmprestado ex:livro03 ; ex:registradoEm ex:central ;
+    ex:dataEmprestimo "2026-10-27"^^xsd:date ; ex:dataPrevista "2026-11-10"^^xsd:date ; ex:ativo "true"^^xsd:boolean .
