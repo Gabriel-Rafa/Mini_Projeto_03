@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Biblioteca Escolar — Grafo do Conhecimento</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101820;color:#edf3f6;
+font-family:system-ui,sans-serif}
+header{padding:28px 5% 20px;border-bottom:1px solid #334350}
+small{color:#63d5ca;letter-spacing:2px}
+h1{font-size:clamp(25px,4vw,38px);margin:8px 0}
+p{color:#b8c7d2;line-height:1.6}
+header p{margin:5px 0}
+main{padding:22px 5%}
+nav{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+button{background:#223340;color:#edf3f6;border:1px solid #496173;
+border-radius:9px;padding:12px 16px;cursor:pointer;font:inherit}
+button:hover,button:focus-visible{border-color:#63d5ca}
+button.active{background:#63d5ca;color:#10212a;font-weight:700}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 290px;gap:18px}
+.panel{background:#192630;border:1px solid #334350;border-radius:14px}
+.graph{overflow:auto;min-height:530px}
+svg{display:block;width:100%;min-width:740px;height:auto}
+aside{padding:22px}
+aside h2{font-size:20px;margin-top:0}
+#detail{white-space:pre-line}
+.legend{display:flex;gap:20px;flex-wrap:wrap;margin-top:18px;
+font-size:14px;color:#c2d1dc}
+.dot{display:inline-block;width:11px;height:11px;
+border-radius:50%;margin-right:7px}
+.note{font-size:13px;color:#99aebd}
+.node{cursor:pointer;outline:none}
+.node:hover rect,.node:focus-visible rect{stroke:white;stroke-width:3}
+.edge-label{fill:#cedce5;font-size:12px;
+paint-order:stroke;stroke:#192630;stroke-width:5;stroke-linejoin:round}
+@media(max-width:950px){
+.layout{grid-template-columns:1fr}
+.graph{min-height:0}
+aside{min-height:180px}
+}
+@media print{
+body{background:white;color:black}
+header p,p,.note{color:#444}
+nav{display:none}
+.layout{display:block}
+.panel{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<header>
+<small>MINI PROJETO 03 · SISTEMAS BASEADOS EM CONHECIMENTO</small>
+<h1>Biblioteca escolar</h1>
+<p>Explore classes, fatos e conclusões em um grafo de conhecimento.</p>
+<p>Gabriel Rafá Martins Freire · Matrícula 20230145310</p>
+</header>
+
+<main>
+<nav aria-label="Escolher visualização">
+<button class="active" data-view="classes">1. Classes</button>
+<button data-view="emprestimo">2. Empréstimo de Ana</button>
+<button data-view="inferencia">3. Inferências</button>
+</nav>
+
+<div class="layout">
+<section class="panel graph" aria-label="Visualização do grafo">
+<svg id="graph" viewBox="0 0 1050 620"
+role="img" aria-labelledby="graphTitle graphDesc"></svg>
+</section>
+<aside class="panel" aria-live="polite">
+<small>INSPECIONAR</small>
+<h2 id="selected">Hierarquia de classes</h2>
+<p id="detail"></p>
+</aside>
+</div>
+
+<div class="legend">
+<span><i class="dot" style="background:#63d5ca"></i>Classe</span>
+<span><i class="dot" style="background:#85b6ff"></i>Indivíduo</span>
+<span><i class="dot" style="background:#ffc978"></i>Literal</span>
+<span>⇢ Linha tracejada: conclusão inferida</span>
+</div>
+
+<p id="caption"></p>
+<p class="note">
+Recorte didático baseado no Mini Projeto 03.
+Os dados desta visualização estão incorporados à página.
+Ela não executa consultas SPARQL nem um raciocinador OWL.
+</p>
+</main>
+
+<script>
+const svg = document.querySelector("#graph");
+const NS = "http://www.w3.org/2000/svg";
+const colors = {
+  classe:"#63d5ca", individuo:"#85b6ff", literal:"#ffc978"
+};
+
+function node(id,label,x,y,type,detail){
+  return {id,label,x,y,type,detail};
+}
+function edge(from,to,label,inferred=false){
+  return {from,to,label,inferred};
+}
+
+const views = {
+classes:{
+  title:"Hierarquia de classes",
+  detail:"As 14 classes nomeadas do projeto.\n\nAs setas apontam da subclasse para a classe mais geral. Leia: “Aluno é subclasse de Pessoa”.\n\nClique em uma classe para conhecer seu papel.",
+  caption:"T-Box: definições gerais do domínio. As setas representam rdfs:subClassOf.",
+  nodes:[
+    node("Entidade","Entidade",525,55,"classe","Classe mais geral da hierarquia do projeto."),
+    node("Pessoa","Pessoa",230,180,"classe","Agrupa pessoas. Aluno, Professor e Autor são subclasses de Pessoa."),
+    node("ItemAcervo","ItemAcervo",570,180,"classe","Categoria geral de itens do acervo. Livro é sua subclasse."),
+    node("Local","Local",845,180,"classe","Agrupa os locais representados: bibliotecas e estantes."),
+    node("Emprestimo","Emprestimo",930,55,"classe","Representa um empréstimo com pessoa, exemplar, datas, biblioteca de registro e situação ativa. É subclasse de Entidade."),
+    node("Aluno","Aluno",90,330,"classe","Categoria dos alunos. Ana é uma de suas instâncias."),
+    node("Professor","Professor",250,330,"classe","Categoria dos professores. Não é disjunta de Aluno: uma pessoa pode pertencer às duas classes."),
+    node("Autor","Autor",410,330,"classe","Categoria das pessoas associadas aos livros pela propriedade escritoPor."),
+    node("Livro","Livro",600,330,"classe","Cada indivíduo representa um exemplar físico. Livro é subclasse de ItemAcervo e é disjunto de Pessoa e Local."),
+    node("Biblioteca","Biblioteca",800,330,"classe","Categoria das bibliotecas. Central e Anexo são indivíduos dessa classe."),
+    node("Estante","Estante",970,330,"classe","Categoria das estantes. Uma estante se relaciona com sua biblioteca por pertenceBiblioteca."),
+    node("Romance","Romance",400,510,"classe","Subclasse de Livro. livro01 pertence a esta classe."),
+    node("LivroDidatico","LivroDidatico",620,510,"classe","Subclasse de Livro para exemplares didáticos."),
+    node("LivroInfantil","LivroInfantil",840,510,"classe","Subclasse de Livro para exemplares infantis.")
+  ],
+  edges:[
+    ["Pessoa","Entidade"],["ItemAcervo","Entidade"],
+    ["Local","Entidade"],["Emprestimo","Entidade"],
+    ["Aluno","Pessoa"],["Professor","Pessoa"],["Autor","Pessoa"],
+    ["Livro","ItemAcervo"],["Biblioteca","Local"],["Estante","Local"],
+    ["Romance","Livro"],["LivroDidatico","Livro"],["LivroInfantil","Livro"]
+  ].map(([a,b])=>edge(a,b,"subClassOf"))
+},
+
+emprestimo:{
+  title:"O empréstimo de Ana",
+  detail:"Um recorte dos fatos explícitos da base.\n\nemprestimo01 conecta Ana ao livro01 e registra sua situação e seu prazo.\n\nClique em um nó para interpretar a informação.",
+  caption:"A-Box: indivíduos e seus valores. Cada seta forma uma tripla: sujeito → predicado → objeto.",
+  nodes:[
+    node("e","emprestimo01",525,270,"individuo","Empréstimo ativo de Ana com livro01. É uma instância de Emprestimo."),
+    node("ana","ana",230,130,"individuo","Identificador da pessoa Ana Lima. Ela é uma instância de Aluno."),
+    node("nome","Ana Lima",90,290,"literal","Literal textual: valor da propriedade nome de ana."),
+    node("aluno","Aluno",160,45,"classe","Classe à qual ana pertence. A relação de pertencimento é rdf:type."),
+    node("livro","livro01",805,130,"individuo","Exemplar de O Caminho da Serra, classificado como Romance."),
+    node("titulo","O Caminho da Serra",890,290,"literal","Título do exemplar livro01. É um literal, não o identificador do livro."),
+    node("autor","autor1",885,440,"individuo","Autor associado ao livro01: Clara Nunes de Souza."),
+    node("ativo","true",320,440,"literal","Valor booleano que indica que o empréstimo está ativo na base original."),
+    node("prazo","2026-11-17",555,510,"literal","Prazo original, com tipo xsd:date. A demonstração de atualização muda essa data em uma cópia do grafo."),
+    node("central","central",690,410,"individuo","Biblioteca na qual o empréstimo foi registrado.")
+  ],
+  edges:[
+    edge("e","ana","emprestadoPara"),
+    edge("e","livro","itemEmprestado"),
+    edge("ana","nome","nome"),edge("ana","aluno","rdf:type"),
+    edge("livro","titulo","titulo"),edge("livro","autor","escritoPor"),
+    edge("e","ativo","ativo"),edge("e","prazo","dataPrevista"),
+    edge("e","central","registradoEm")
+  ]
+},
+
+inferencia:{
+  title:"Do fato à conclusão",
+  detail:"As linhas contínuas mostram premissas; as tracejadas destacam conclusões.\n\nEste painel ilustra inferências demonstradas pelo projeto. A página mostra resultados explicativos pré-definidos; o raciocinador é executado no notebook.",
+  caption:"Na localização: guardadoEm e pertenceBiblioteca são subpropriedades de localizadoEm; localizadoEm é transitiva. A localização é a habitual no acervo.",
+  nodes:[
+    node("l1","livro01",130,90,"individuo","Declarado como Romance. Pela hierarquia, também pode ser classificado como Livro."),
+    node("r","Romance",470,90,"classe","Romance é subclasse de Livro."),
+    node("l","Livro",850,90,"classe","Conclusão: livro01 também é uma instância de Livro."),
+    node("book","livro01",130,330,"individuo","Está habitualmente guardado na estanteRomance."),
+    node("shelf","estanteRomance",470,330,"individuo","Pertence à biblioteca Central."),
+    node("lib","central",850,330,"individuo","Conclusão: livro01 localizadoEm central.")
+  ],
+  edges:[
+    edge("l1","r","rdf:type"),
+    edge("r","l","subClassOf"),
+    edge("l1","l","rdf:type · inferido",true),
+    edge("book","shelf","guardadoEm"),
+    edge("shelf","lib","pertenceBiblioteca"),
+    edge("book","lib","localizadoEm · inferido",true)
+  ]
+}
+};
+
+function el(tag,attrs={},text){
+  const element=document.createElementNS(NS,tag);
+  for(const [key,value] of Object.entries(attrs)){
+    element.setAttribute(key,value);
+  }
+  if(text!==undefined) element.textContent=text;
+  return element;
+}
+
+function showDetails(title,detail){
+  document.querySelector("#selected").textContent=title;
+  document.querySelector("#detail").textContent=detail;
+}
+
+function draw(key){
+  const view=views[key];
+  svg.replaceChildren();
+  svg.append(el("title",{id:"graphTitle"},view.title));
+  svg.append(el("desc",{id:"graphDesc"},view.caption));
+
+  const defs=el("defs");
+  const marker=el("marker",{
+    id:"arrow",viewBox:"0 0 10 10",refX:9,refY:5,
+    markerWidth:7,markerHeight:7,orient:"auto-start-reverse"
+  });
+  marker.append(el("path",{d:"M 0 0 L 10 5 L 0 10 z",fill:"#9aaebb"}));
+  defs.append(marker);
+  svg.append(defs);
+
+  const map=Object.fromEntries(view.nodes.map(n=>[n.id,n]));
+
+  view.edges.forEach(e=>{
+    const a=map[e.from],b=map[e.to];
+    const dx=b.x-a.x,dy=b.y-a.y;
+    const factor=Math.min(85/(Math.abs(dx)||1),25/(Math.abs(dy)||1));
+    let d,tx,ty;
+    if(e.inferred){
+      const y=a.y+145;
+      d=`M ${a.x} ${a.y+25} C ${a.x} ${y}, ${b.x} ${y}, ${b.x} ${b.y+25}`;
+      tx=(a.x+b.x)/2; ty=a.y+122;
+    }else{
+      const sx=a.x+dx*factor,sy=a.y+dy*factor;
+      const ex=b.x-dx*factor,ey=b.y-dy*factor;
+      d=`M ${sx} ${sy} L ${ex} ${ey}`;
+      tx=(a.x+b.x)/2;ty=(a.y+b.y)/2-8;
+    }
+    const path=el("path",{
+      d,fill:"none",stroke:e.inferred?"#ffc978":"#7893a4",
+      "stroke-width":e.inferred?2.5:1.7,
+      "marker-end":"url(#arrow)"
+    });
+    if(e.inferred)path.setAttribute("stroke-dasharray","7 6");
+    svg.append(path);
+    svg.append(el("text",{
+      x:tx,y:ty,"text-anchor":"middle",class:"edge-label"
+    },e.label));
+  });
+
+  view.nodes.forEach(n=>{
+    const group=el("g",{
+      class:"node",tabindex:0,role:"button",
+      "aria-label":n.label+": mostrar detalhes"
+    });
+    group.append(el("rect",{
+      x:n.x-85,y:n.y-25,width:170,height:50,rx:10,
+      fill:"#1d303e",stroke:colors[n.type],"stroke-width":2
+    }));
+    group.append(el("text",{
+      x:n.x,y:n.y+5,"text-anchor":"middle",
+      fill:colors[n.type],"font-size":n.label.length>17?12:14,
+      "font-weight":600
+    },n.label));
+    const choose=()=>showDetails(n.label,n.detail);
+    group.addEventListener("click",choose);
+    group.addEventListener("keydown",event=>{
+      if(event.key==="Enter"||event.key===" "){
+        event.preventDefault();choose();
+      }
+    });
+    svg.append(group);
+  });
+
+  showDetails(view.title,view.detail);
+  document.querySelector("#caption").textContent=view.caption;
+  document.querySelectorAll("nav button").forEach(button=>{
+    const active=button.dataset.view===key;
+    button.classList.toggle("active",active);
+    button.setAttribute("aria-pressed",String(active));
+  });
+}
+
+document.querySelectorAll("nav button").forEach(button=>{
+  button.addEventListener("click",()=>draw(button.dataset.view));
+});
+draw("classes");
+</script>
+</body>
+</html>
